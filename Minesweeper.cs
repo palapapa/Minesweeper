@@ -12,12 +12,23 @@ namespace Minesweeper
 {
     public partial class Minesweeper : Form
     {
+        public StartupMenu StartupMenuInstance;
+
+        public Minesweeper(StartupMenu startupMenuInstance)
+        {
+            StartupMenuInstance = startupMenuInstance;
+        }
+
         public Minesweeper()
         {
             InitializeComponent();
             StartupMenu startupMenu = new StartupMenu(this);
             startupMenu.FormClosing += new FormClosingEventHandler(StartupMenu_Closing);
-            startupMenu.ShowDialog();//show startup menu
+            if (GameInfo.FirstStarted)
+            {
+                startupMenu.ShowDialog();//show startup menu
+                GameInfo.FirstStarted = false;
+            }
             while (!GameInfo.GameStarted);//wait until start button is pressed
             //<draw mine field>
             int mineCellWidth = 25;
@@ -92,7 +103,7 @@ namespace Minesweeper
         }
         private void StartupMenu_Closing(object sender, EventArgs e)
         {
-            this.Visible = true;
+            Visible = true;
             GameInfo.GameStarted = true;//force the game to start
         }
         private void MineCell_MouseDown(object sender, MouseEventArgs e)
@@ -143,6 +154,9 @@ namespace Minesweeper
             {
                 MineField.Enabled = false;
                 GameOverSign.Visible = true;
+                RetryButton.Enabled = true;
+                RetryButton.Visible = true;
+                RetryButton.BringToFront();
             }
             else if (revealingMineCell.ProxMineCount == 0)//if the mine cell revealed is empty
             {
@@ -205,12 +219,29 @@ namespace Minesweeper
             {
                 MineField.Enabled = false;
                 WinSign.Visible = true;
+                RetryButton.Enabled = true;
+                RetryButton.Visible = true;
+                RetryButton.BringToFront();
             }
             else if (flaggedCount == flaggedMineCount && flaggedCount == GameInfo.TotalMineCount && byFlaging)//if all mines have been flagged and no excess flag was used
             {
                 MineField.Enabled = false;
                 WinSign.Visible = true;
+                RetryButton.Enabled = true;
+                RetryButton.Visible = true;
+                RetryButton.BringToFront();
             }
+        }
+
+        private void RetryButton_Click(object sender, EventArgs e)
+        {
+            RetryButton.Enabled = false;
+            RetryButton.Visible = false;
+            GameInfo.GameStarted = false;
+            Hide();
+            StartupMenu startupMenu = new StartupMenu(this);
+            startupMenu.FormClosing += new FormClosingEventHandler(StartupMenu_Closing);
+            startupMenu.ShowDialog();
         }
     }
     public class MineCell : Button
@@ -257,6 +288,7 @@ namespace Minesweeper
         public static int TotalMineCount { get; set; } = 10;
         public static int CurrentMineCount { get; set; } = 0;//this property should eventually match `TotalMineCount`
         public static bool GameStarted { get; set; } = false;
+        public static bool FirstStarted { get; set; } = true;
     }
 }
 

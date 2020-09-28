@@ -12,15 +12,15 @@ namespace Minesweeper
 {
     public partial class StartupMenu : Form
     {
-        public static Minesweeper @Ref { get; set; }
+        public static Minesweeper MinesweeperInstance { get; set; }
         public StartupMenu()
         {
             InitializeComponent();
         }
-        public StartupMenu(Minesweeper @ref)
+        public StartupMenu(Minesweeper mineSweeperInstance)
         {
             InitializeComponent();
-            @Ref = @ref;//get the instance of the main form
+            MinesweeperInstance = mineSweeperInstance;//get the instance of the main form
         }
 
         private void XCustomizer_ValueChanged(object sender, EventArgs e)
@@ -74,8 +74,9 @@ namespace Minesweeper
             }
             if (noOptionSelected == false)
             {
-                this.Hide();//hide startup menu
-                @Ref.Show();
+                Hide();//hide startup menu
+                MinesweeperInstance = new Minesweeper();
+                MinesweeperInstance.Show();
                 GameInfo.GameStarted = true;
             }
         }
